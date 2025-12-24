@@ -14,6 +14,7 @@ A comprehensive Angular-based web application for students to manage their finan
 - Budget progress tracking with visual indicators
 - Financial summary dashboard
 - Transaction history with filtering
+- Adding and deleting the category according to user
 
 ### Modern UI/UX
 - Clean, responsive design
