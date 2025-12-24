@@ -1,0 +1,32 @@
+<div class="analytics">
+  <h2>Spending Analytics</h2>
+  
+  <div *ngIf="categoryTotals.length === 0" class="empty-state">
+    No expense data to analyze yet.
+  </div>
+  
+  <div class="chart">
+    <div *ngFor="let item of categoryTotals" class="chart-item">
+      <div class="chart-bar">
+        <div class="bar-fill" 
+             [style.width.%]="item.percentage"
+             [style.background]="getCategoryColor(item.category)">
+          <span class="bar-label">{{item.category}}</span>
+        </div>
+      </div>
+      <div class="chart-info">
+        <span class="category-name">{{item.category}}</span>
+        <span class="category-amount">€{{item.total | number:'1.2-2'}} ({{item.percentage | number:'1.0-0'}}%)</span> <!-- Changed ₹ to € -->
+      </div>
+    </div>
+  </div>
+  
+  <div class="summary">
+    <h3>Spending Summary</h3>
+    <div class="summary-item" *ngFor="let item of categoryTotals">
+      <div class="summary-color" [style.background]="getCategoryColor(item.category)"></div>
+      <div class="summary-category">{{item.category}}</div>
+      <div class="summary-percentage">{{item.percentage | number:'1.0-0'}}%</div>
+    </div>
+  </div>
+</div>

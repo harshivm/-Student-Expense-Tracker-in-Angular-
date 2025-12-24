@@ -1,1 +1,115 @@
-/* You can add global styles to this file, and also import other style files */
+/* Modern CSS Reset and Variables */
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --warning-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+  --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+  
+  --primary-color: #667eea;
+  --secondary-color: #764ba2;
+  --success-color: #4facfe;
+  --danger-color: #ff6b6b;
+  --warning-color: #f6d365;
+  --dark-color: #2c3e50;
+  --light-color: #f8f9fa;
+  --gray-color: #6c757d;
+  
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,0.12);
+  
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 20px;
+  
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Add these styles to prevent pull-to-refresh */
+html, body {
+  overscroll-behavior-y: contain; /* Prevent pull-to-refresh and overscroll glow */
+  touch-action: pan-y; /* Allow vertical scrolling but prevent other gestures */
+  position: fixed; /* Prevent bounce on iOS */
+  overflow: hidden; /* Prevent overscroll */
+  width: 100%;
+  height: 100%;
+}
+
+/* Allow scrolling only in the main content */
+.dashboard {
+  height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
+
+/* Add smooth page transitions */
+.component-card {
+  animation: fadeInUp 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse animation for important elements */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+

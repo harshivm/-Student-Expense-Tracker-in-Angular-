@@ -1,0 +1,40 @@
+<div class="budget-overview">
+  <h2>Budget Overview</h2>
+  
+  <div *ngIf="budgets.length === 0" class="empty-state">
+    No budgets set up yet.
+  </div>
+  
+  <div class="budget-list">
+    <div *ngFor="let budget of budgets" class="budget-item">
+      <div class="budget-header">
+        <div class="budget-category">
+          <span class="category-icon">{{getCategoryIcon(budget.category)}}</span>
+          {{budget.category}}
+        </div>
+        <div class="budget-amounts">
+          €{{budget.spent | number:'1.2-2'}} / €{{budget.limit | number:'1.2-2'}} <!-- Changed ₹ to € -->
+        </div>
+      </div>
+      
+      <div class="progress-bar">
+        <div class="progress-fill" 
+             [style.width.%]="getProgressPercentage(budget)"
+             [style.background]="getProgressColor(getProgressPercentage(budget))">
+        </div>
+      </div>
+      
+      <div class="budget-footer">
+        <span class="remaining" *ngIf="budget.limit - budget.spent >= 0">
+          €{{(budget.limit - budget.spent) | number:'1.2-2'}} remaining <!-- Changed ₹ to € -->
+        </span>
+        <span class="overspent" *ngIf="budget.limit - budget.spent < 0">
+          €{{(budget.spent - budget.limit) | number:'1.2-2'}} overspent! <!-- Changed ₹ to € -->
+        </span>
+        <span class="percentage">
+          {{getProgressPercentage(budget) | number:'1.0-0'}}%
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

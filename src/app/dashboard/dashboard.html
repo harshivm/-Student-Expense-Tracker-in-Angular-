@@ -1,0 +1,53 @@
+<div class="dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1>💰 Student Finance Hub</h1>
+    <p>Track your expenses, manage budgets, and achieve financial goals all in one place</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <div class="stat-card income">
+      <h3>📈 Total Income</h3>
+      <p class="amount">€{{totalIncome | number:'1.2-2'}}</p> <!-- Changed ₹ to € -->
+      <p class="subtitle">Keep growing! 🚀</p>
+    </div>
+    
+    <div class="stat-card expense">
+      <h3>📉 Total Expenses</h3>
+      <p class="amount">€{{totalExpenses | number:'1.2-2'}}</p> <!-- Changed ₹ to € -->
+      <p class="subtitle">Stay within budget 💡</p>
+    </div>
+    
+    <div class="stat-card balance" [class.positive]="balance >= 0" [class.negative]="balance < 0">
+      <h3>⚖️ Current Balance</h3>
+      <p class="amount">€{{balance | number:'1.2-2'}}</p> <!-- Changed ₹ to € -->
+      <p class="subtitle">{{balance >= 0 ? 'Great job! 🎉' : 'Time to save! 💪'}}</p>
+    </div>
+  </div>
+
+  <!-- Components Grid -->
+  <div class="components-container">
+    <!-- Left Column -->
+    <div class="column">
+      <div class="component-card">
+        <app-add-expense (expenseAdded)="updateTotals()"></app-add-expense>
+      </div>
+      
+      <div class="component-card">
+        <app-budget-overview></app-budget-overview>
+      </div>
+    </div>
+    
+    <!-- Right Column -->
+    <div class="column">
+      <div class="component-card">
+        <app-expense-list (expenseDeleted)="updateTotals()"></app-expense-list>
+      </div>
+      
+      <div class="component-card">
+        <app-analytics></app-analytics>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<div class="expense-list">
+  <h2>Recent Transactions</h2>
+  
+  <div *ngIf="expenses.length === 0" class="empty-state">
+    No transactions yet. Add your first expense or income!
+  </div>
+  
+  <div class="transactions">
+    <div *ngFor="let expense of expenses" 
+         class="transaction-item"
+         [style.borderLeftColor]="getCategoryColor(expense.category)">
+      <div class="transaction-info">
+        <div class="category-badge" [style.background]="getCategoryColor(expense.category)">
+          {{expense.category}}
+        </div>
+        <div class="description">{{expense.description}}</div>
+        <div class="date">{{expense.date | date:'MMM d, yyyy'}}</div>
+      </div>
+      
+      <div class="transaction-amount">
+        <span [class.income-text]="expense.type === 'income'"
+              [class.expense-text]="expense.type === 'expense'">
+          {{expense.type === 'income' ? '+' : '-'}}€{{expense.amount | number:'1.2-2'}} <!-- Changed ₹ to € -->
+        </span>
+        <button class="delete-btn" (click)="deleteExpense(expense.id)">×</button>
+      </div>
+    </div>
+  </div>
+</div>
