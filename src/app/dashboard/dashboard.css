@@ -181,5 +181,10 @@
   .components-container {
     grid-template-columns: 1fr;
   }
+
+  /* Add to dashboard.css */
+  .alerts-section {
+    margin-bottom: 30px;
+  }
 }
 

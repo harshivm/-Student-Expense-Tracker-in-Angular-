@@ -1,0 +1,197 @@
+.alerts-container {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.alerts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.alerts-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.live-badge {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.alert-section {
+  margin-bottom: 25px;
+}
+
+.alert-section h4 {
+  margin: 0 0 12px 0;
+  color: #555;
+  font-size: 1rem;
+}
+
+.alert-item {
+  display: flex;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  animation: slideIn 0.3s ease;
+}
+
+.alert-item.danger {
+  background: #fee;
+  border-left: 4px solid #ff4444;
+}
+
+.alert-item.warning {
+  background: #fff3e0;
+  border-left: 4px solid #ffbb33;
+}
+
+.alert-item.success {
+  background: #e8f5e9;
+  border-left: 4px solid #00C851;
+}
+
+.alert-icon {
+  font-size: 1.3rem;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.alert-message {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.summary-section {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.summary-value.income {
+  color: #00C851;
+}
+
+.summary-value.expense {
+  color: #ff4444;
+}
+
+.summary-value.positive {
+  color: #00C851;
+}
+
+.summary-value.negative {
+  color: #ff4444;
+}
+
+.summary-value.good {
+  color: #00C851;
+}
+
+.prediction-section {
+  background: linear-gradient(135deg, #667eea10, #764ba210);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 20px 0;
+}
+
+.prediction-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.prediction-label {
+  color: #555;
+}
+
+.prediction-value {
+  font-weight: 600;
+  color: #333;
+}
+
+.tip-section {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.tip-icon {
+  font-size: 1.5rem;
+}
+
+.tip-text {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.no-data {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+}
+
+.no-data-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  opacity: 0.3;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

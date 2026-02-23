@@ -1,40 +1,59 @@
 .add-expense {
+  background: white;
+  border-radius: 16px;
   padding: 25px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-.add-expense h2 {
-  margin: 0 0 25px 0;
+h2 {
+  margin: 0 0 20px 0;
+  color: #333;
   font-size: 1.5rem;
-  color: var(--dark-color);
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.add-expense h2::before {
-  content: '➕';
-  font-size: 1.2rem;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-bottom: 15px;
 }
 
 label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
   font-weight: 600;
-  color: var(--dark-color);
   font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.date-input {
+  font-family: inherit;
+}
+
+.category-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
 }
 
 /* Type Buttons */
@@ -43,119 +62,75 @@ label {
   gap: 10px;
   background: #f8f9fa;
   padding: 4px;
-  border-radius: var(--border-radius-md);
+  border-radius: 12px;
 }
 
 .type-buttons button {
   flex: 1;
-  padding: 12px 20px;
+  padding: 12px;
   border: none;
   background: transparent;
-  border-radius: var(--border-radius-sm);
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
-.type-buttons button.expense-btn:not(.active) {
-  color: var(--danger-color);
-}
-
-.type-buttons button.income-btn:not(.active) {
-  color: var(--success-color);
-}
-
-.type-buttons button.active {
-  background: white;
-  box-shadow: var(--shadow-sm);
-}
-
-.type-buttons button.expense-btn.active {
+.expense-btn.active {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
   color: white;
-  background: var(--danger-gradient);
 }
 
-.type-buttons button.income-btn.active {
+.income-btn.active {
+  background: linear-gradient(135deg, #06D6A0, #4CAF50);
   color: white;
-  background: var(--success-gradient);
 }
 
-/* Input Fields */
-input, select {
-  padding: 14px 16px;
-  border: 2px solid #e9ecef;
-  border-radius: var(--border-radius-md);
-  font-size: 1rem;
-  transition: var(--transition);
-  background: white;
-  font-family: inherit;
+/* Form Row */
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
-input:focus, select:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-input::placeholder {
-  color: #adb5bd;
+.form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
 }
 
 /* Submit Button */
 .submit-btn {
-  padding: 16px 24px;
-  background: var(--primary-gradient);
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   border: none;
-  border-radius: var(--border-radius-md);
+  border-radius: 12px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   margin-top: 10px;
-  letter-spacing: 0.5px;
 }
 
 .submit-btn:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
 }
 
-.submit-btn:active {
-  transform: translateY(0);
-}
-
-/* Category Select Styling */
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  padding-right: 40px;
-}
-
-/* Form Row for better spacing */
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
   .form-row {
-    grid-template-columns: 1fr;
-  }
-  
-  .type-buttons {
     flex-direction: column;
+    gap: 10px;
   }
   
   .add-expense {
