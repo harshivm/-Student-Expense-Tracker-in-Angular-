@@ -11,24 +11,34 @@ import { trigger, transition, style, animate } from '@angular/animations';
   templateUrl: './expense-list.html',
   styleUrls: ['./expense-list.css'],
   animations: [
-    trigger('slideOut', [
-      transition(':leave', [
-        animate('300ms ease-in', style({
-          opacity: 0,
-          transform: 'translateX(100%)',
-          height: 0,
-          margin: 0,
-          padding: 0
-        }))
-      ])
+  trigger('slideOut', [
+    // 1. Add the :enter transition to "show" the items
+    transition(':enter', [
+      style({ 
+        opacity: 0, 
+        transform: 'translateX(-20px)', 
+        height: '0px', // Start at 0
+        overflow: 'hidden' 
+      }),
+      animate('300ms ease-out', style({ 
+        opacity: 1, 
+        transform: 'translateX(0)', 
+        height: '*' // '*' means "calculate the height automatically"
+      }))
     ]),
-    trigger('fadeIn', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
-      ])
+    // 2. The :leave transition (this is what you already have)
+    transition(':leave', [
+      style({ overflow: 'hidden' }),
+      animate('300ms ease-in', style({
+        opacity: 0,
+        transform: 'translateX(100%)',
+        height: 0,
+        margin: 0,
+        padding: 0
+      }))
     ])
-  ]
+  ]),
+]
 })
 export class ExpenseListComponent implements OnInit {
   expenses: Expense[] = [];
@@ -102,4 +112,3 @@ export class ExpenseListComponent implements OnInit {
     return cat ? cat.color : '#999';
   }
 }
-// NO export { ExpenseList }; at the end!

@@ -1,84 +1,70 @@
-<div class="alerts-container">
-  <div class="alerts-header">
-    <h3>🔔 Smart Insights</h3>
-    <span class="live-badge">LIVE</span>
+<div class="al-wrap">
+  <div class="al-header">
+    <h2 class="al-title">Smart Alerts</h2>
+    <span class="al-sub">Insights & predictions</span>
   </div>
-  
-  <!-- Budget Alerts -->
-  <div *ngIf="budgetAlerts.length > 0" class="alert-section">
-    <h4>Budget Status</h4>
-    <div *ngFor="let alert of budgetAlerts" class="alert-item" [ngClass]="alert.type">
-      <span class="alert-icon">{{alert.icon}}</span>
-      <div class="alert-content">
-        <div class="alert-title">{{alert.title}}</div>
-        <div class="alert-message">{{alert.message}}</div>
+
+  <!-- Money tip -->
+  <div class="tip-card" *ngIf="moneyTip">
+    <span class="tip-label">💡 Tip of the day</span>
+    <p class="tip-text">{{ moneyTip }}</p>
+  </div>
+
+  <!-- Prediction + trend row -->
+  <div class="insight-row">
+    <div class="insight-card">
+      <div class="insight-icon">🔮</div>
+      <div class="insight-body">
+        <div class="insight-label">Next Month Forecast</div>
+        <div class="insight-val">{{ nextMonthPrediction > 0 ? '€' + nextMonthPrediction : 'Need more data' }}</div>
+        <div class="insight-note">Based on 3-month average</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">📊</div>
+      <div class="insight-body">
+        <div class="insight-label">Spending Trend</div>
+        <div class="insight-val trend-val">{{ trend || 'Not enough data' }}</div>
+        <div class="insight-note">vs last month</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">💰</div>
+      <div class="insight-body">
+        <div class="insight-label">This Month Balance</div>
+        <div class="insight-val" [class.green-val]="monthlySummary.balance >= 0" [class.red-val]="monthlySummary.balance < 0">
+          {{ monthlySummary.balance >= 0 ? '+' : '' }}€{{ monthlySummary.balance.toFixed(2) }}
+        </div>
+        <div class="insight-note">Savings rate: {{ monthlySummary.savingsRate }}%</div>
       </div>
     </div>
   </div>
-  
-  <!-- Unusual Expenses -->
-  <div *ngIf="unusualExpenses.length > 0" class="alert-section">
-    <h4>⚠️ Unusual Spending</h4>
-    <div *ngFor="let item of unusualExpenses" class="alert-item warning">
-      <span class="alert-icon">🔔</span>
-      <div class="alert-content">
-        <div class="alert-title">{{item.expense.description}}</div>
-        <div class="alert-message">
-          €{{item.expense.amount}} is {{item.reason}} 
-          (normal: €{{item.normalAmount}})
+
+  <!-- Budget alerts -->
+  <div class="al-section">
+    <h3 class="section-title">Budget Alerts</h3>
+    <div class="al-empty-small" *ngIf="!budgetAlerts.length">✅ All budgets healthy — no alerts</div>
+    <div class="al-card" *ngFor="let a of budgetAlerts" [class]="'al-' + a.type">
+      <span class="al-big-icon">{{ a.icon }}</span>
+      <div class="al-body">
+        <div class="al-card-title">{{ a.title }}</div>
+        <div class="al-card-msg">{{ a.message }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unusual expenses -->
+  <div class="al-section">
+    <h3 class="section-title">Unusual Expenses</h3>
+    <div class="al-empty-small" *ngIf="!unusualExpenses.length">✅ No unusual expenses detected</div>
+    <div class="al-card al-unusual" *ngFor="let u of unusualExpenses">
+      <span class="al-big-icon">🔍</span>
+      <div class="al-body">
+        <div class="al-card-title">{{ u.expense.description }}</div>
+        <div class="al-card-msg">
+          €{{ u.expense.amount }} — <strong>{{ u.reason }}</strong> (typical: €{{ u.normalAmount }})
         </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Monthly Summary -->
-  <div class="summary-section">
-    <h4>📊 This Month</h4>
-    <div class="summary-grid">
-      <div class="summary-item">
-        <span class="summary-label">Income</span>
-        <span class="summary-value income">€{{monthlySummary.income}}</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">Expenses</span>
-        <span class="summary-value expense">€{{monthlySummary.expense}}</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">Balance</span>
-        <span class="summary-value" [ngClass]="{'positive': monthlySummary.balance >= 0, 'negative': monthlySummary.balance < 0}">
-          €{{monthlySummary.balance}}
-        </span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">Savings Rate</span>
-        <span class="summary-value" [ngClass]="{'good': monthlySummary.savingsRate > 20}">
-          {{monthlySummary.savingsRate}}%
-        </span>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Predictions -->
-  <div class="prediction-section">
-    <div class="prediction-item">
-      <span class="prediction-label">📅 Next Month:</span>
-      <span class="prediction-value">€{{nextMonthPrediction}}</span>
-    </div>
-    <div class="prediction-item">
-      <span class="prediction-label">📈 Trend:</span>
-      <span class="prediction-value">{{trend}}</span>
-    </div>
-  </div>
-  
-  <!-- Money Tip -->
-  <div class="tip-section">
-    <div class="tip-icon">💡</div>
-    <div class="tip-text">{{moneyTip}}</div>
-  </div>
-  
-  <!-- No Data State -->
-  <div *ngIf="budgetAlerts.length === 0 && unusualExpenses.length === 0" class="no-data">
-    <div class="no-data-icon">✨</div>
-    <p>Add some expenses to see insights!</p>
   </div>
 </div>

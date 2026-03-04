@@ -1,327 +1,275 @@
-import { Component, ElementRef } from '@angular/core';
-import { ExpenseService } from '../services/expense.service';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Analytics } from "../analytics/analytics";
-import { ExpenseListComponent } from "../expense-list/expense-list";
-import { BudgetOverview } from "../budget-overview/budget-overview";
-import { AddExpense } from "../add-expense/add-expense";
-import { CategoryManager } from '../category-manager/category-manager';
-import { Subscription } from 'rxjs'; // Add this
-import { Alert } from '../alert/alert';
+import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID, Inject } from '@angular/core';
+import { AddExpense }           from '../add-expense/add-expense';
+import { ExpenseListComponent } from '../expense-list/expense-list';
+import { BudgetOverview }       from '../budget-overview/budget-overview';
+import { Analytics }            from '../analytics/analytics';
+import { CategoryManager }      from '../category-manager/category-manager';
+import { Alert }                from '../alert/alert';
 
+import { ExpenseService } from '../services/expense.service';
+import { AlertService }   from '../services/alert.service';
+import { Expense, Budget, Category } from '../models/expense.model';
 
-// import { PullToRefresh } from "../pull-to-refresh/pull-to-refresh"; // Add this
 @Component({
   selector: 'app-dashboard',
-  imports: [ FormsModule, CommonModule, Alert, Analytics, ExpenseListComponent, BudgetOverview, AddExpense, CategoryManager],// Add this
+  standalone: true,
+  imports: [
+    CommonModule, FormsModule,
+    AddExpense, ExpenseListComponent, BudgetOverview,
+    Analytics, CategoryManager, Alert
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
-export class Dashboard {
-  totalExpenses: number = 0;
-  totalIncome: number = 0;
-  balance: number = 0;
-  isLoading = false;
-  lastUpdated = new Date();
-  private totalsSubscription!: Subscription; // Add this
-  
+export class Dashboard implements OnInit, OnDestroy, AfterViewInit {
+
+  activeTab: 'home' | 'add' | 'transactions' | 'budgets' | 'analytics' | 'alerts' | 'categories' = 'home';
+
+  totalExpenses = 0;
+  totalIncome   = 0;
+  balance       = 0;
+  savingsRate   = 0;
+
+  expenses:       Expense[]  = [];
+  budgets:        Budget[]   = [];
+  categories:     Category[] = [];
+  categoryTotals: { name: string; total: number; pct: number; color: string; icon: string }[] = [];
+  monthlyData:    { month: string; income: number; expense: number }[] = [];
+
+  trend           = '';
+  nextMonth       = 0;
+  monthlySummary: any = { income: 0, expense: 0, balance: 0, savingsRate: 0 };
+  budgetAlerts:   any[] = [];
+  unusualExpenses: any[] = [];
+  animateIn = false;
+
+  private subs: Subscription[] = [];
+
+  @ViewChild('pieCanvas')  pieCanvas!:  ElementRef<HTMLCanvasElement>;
+  @ViewChild('barCanvas')  barCanvas!:  ElementRef<HTMLCanvasElement>;
+  @ViewChild('lineCanvas') lineCanvas!: ElementRef<HTMLCanvasElement>;
+
   constructor(
     private expenseService: ExpenseService,
-    private elementRef: ElementRef
+    private alertService:   AlertService,
   ) {}
-  
 
   ngOnInit(): void {
-    this.updateTotals();
-
-    this.totalsSubscription = this.expenseService.totals$.subscribe(totals => {
-      this.totalIncome = totals.income;
-      this.totalExpenses = totals.expenses;
-      this.balance = totals.balance;
-      console.log('Dashboard updated automatically!', totals);
-    });
-
-  }
-
-  ngOnDestroy(): void {
-    // Clean up subscription
-    if (this.totalsSubscription) {
-      this.totalsSubscription.unsubscribe();
-    }
-  }
-
+  this.refresh();
   
+  // Only setup subscriptions and timers that touch the UI/DOM on the browser
+  if (isPlatformBrowser(this.platformId)) {
+    this.subs.push(
+      this.expenseService.expenses$.subscribe(() => {
+        this.refresh();
+        // Charts only exist in the browser
+        setTimeout(() => this.drawAllCharts(), 50);
+      }),
+      this.expenseService.totals$.subscribe(t => {
+        this.totalIncome = t.income; 
+        this.totalExpenses = t.expenses;
+        this.balance = t.balance; 
+        this.calcSavingsRate();
+      })
+    );
+    
+    setTimeout(() => { this.animateIn = true; }, 80);
+  }
+}
 
-  // ngAfterViewInit(): void {
-  //   this.preventBrowserPullToRefresh();
-  // }
+ngAfterViewInit(): void { 
+  // Safety check: Don't try to draw charts on the server
+  if (isPlatformBrowser(this.platformId)) {
+    setTimeout(() => this.drawAllCharts(), 250); 
+  }
+}
+  ngOnDestroy(): void { this.subs.forEach(s => s.unsubscribe()); }
 
-  updateTotals(): void {
+  refresh(): void {
+    this.expenses   = this.expenseService.getExpenses();
+    this.budgets    = this.expenseService.getBudgets();
+    this.categories = this.expenseService.getCategories();
+    this.totalIncome   = this.expenseService.getTotalIncome();
     this.totalExpenses = this.expenseService.getTotalExpenses();
-    this.totalIncome = this.expenseService.getTotalIncome();
-    this.balance = this.expenseService.getBalance();
-    this.lastUpdated = new Date();
+    this.balance       = this.expenseService.getBalance();
+    this.calcSavingsRate();
+    this.buildCategoryTotals();
+    this.buildMonthlyData();
+    this.trend           = this.alertService.getSpendingTrend(this.expenses);
+    this.nextMonth       = this.alertService.predictNextMonth(this.expenses);
+    this.monthlySummary  = this.alertService.getMonthlySummary(this.expenses);
+    this.budgetAlerts    = this.alertService.getBudgetAlerts(this.expenses, this.budgets);
+    this.unusualExpenses = this.alertService.getUnusualExpenses(this.expenses);
   }
 
-  // Handle pull-to-refresh event
-  onPullToRefresh(): void {
-    if (this.isLoading) return;
-    
-    this.isLoading = true;
-    
-    // Simulate API call or data refresh
-    setTimeout(() => {
-      // In a real app, you would fetch fresh data from an API
-      // For now, we'll just reload from localStorage
-      this.updateTotals();
-      
-      // Show success message
-      this.showSuccessMessage('Data refreshed successfully!');
-      
-      this.isLoading = false;
-    }, 1000);
+  platformId = inject(PLATFORM_ID);
+
+  
+
+  calcSavingsRate(): void {
+    this.savingsRate = this.totalIncome > 0
+      ? Math.round(((this.totalIncome - this.totalExpenses) / this.totalIncome) * 100) : 0;
   }
 
-  // Show success toast
-  showSuccessMessage(message: string): void {
-    // You can implement a toast service or use a simple alert
-    console.log(message);
-    
-    // Optional: Create a simple toast notification
-    const toast = document.createElement('div');
-    toast.textContent = '✅ ' + message;
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, #06D6A0, #4CAF50);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 25px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 1000;
-      font-weight: 600;
-      animation: slideUp 0.3s ease;
-    `;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-      toast.style.animation = 'slideDown 0.3s ease';
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
-    }, 2000);
+  buildCategoryTotals(): void {
+    const map = new Map<string, number>();
+    this.expenses.filter(e => e.type === 'expense').forEach(e =>
+      map.set(e.category, (map.get(e.category) ?? 0) + e.amount));
+    const total = Array.from(map.values()).reduce((s, v) => s + v, 0);
+    this.categoryTotals = Array.from(map.entries()).map(([name, t]) => {
+      const cat = this.categories.find(c => c.name === name);
+      return { name, total: t, pct: total > 0 ? (t / total) * 100 : 0,
+               color: cat?.color ?? '#999', icon: cat?.icon ?? '📦' };
+    }).sort((a, b) => b.total - a.total);
   }
 
-  // Prevent default browser pull-to-refresh
-  private preventBrowserPullToRefresh(): void {
-    const dashboardElement = this.elementRef.nativeElement.querySelector('.dashboard-container');
-    
-    if (dashboardElement) {
-      dashboardElement.addEventListener('touchmove', (e: TouchEvent) => {
-        if (dashboardElement.scrollTop === 0) {
-          e.preventDefault();
-        }
-      }, { passive: false });
+  buildMonthlyData(): void {
+    const now = new Date();
+    this.monthlyData = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const month = d.toLocaleString('default', { month: 'short' });
+      let income = 0, expense = 0;
+      this.expenses.forEach(e => {
+        const ed = new Date(e.date);
+        if (ed.getMonth() === d.getMonth() && ed.getFullYear() === d.getFullYear())
+          e.type === 'income' ? (income += e.amount) : (expense += e.amount);
+      });
+      this.monthlyData.push({ month, income, expense });
     }
   }
 
-  // Manual refresh button (optional)
-  manualRefresh(): void {
-    this.onPullToRefresh();
+  setTab(t: typeof this.activeTab): void {
+    this.activeTab = t;
+    if (t === 'home') setTimeout(() => this.drawAllCharts(), 80);
   }
 
-  // Add this method to your Dashboard class
-addSampleHistoricalData() {
-  const today = new Date();
-  
-  // Create date for last month
-  const lastMonth = new Date();
-  lastMonth.setMonth(today.getMonth() - 1);
-  
-  console.log('📅 Adding expenses for last month:', lastMonth.toDateString());
-  
-  // Add last month expenses
-  this.expenseService.addExpense({
-    amount: 200,
-    category: 'Food',
-    description: 'Last month groceries',
-    date: lastMonth,
-    type: 'expense'
-  });
-  
-  // Add another last month expense (different date)
-  const lastMonthMid = new Date();
-  lastMonthMid.setMonth(today.getMonth() - 1);
-  lastMonthMid.setDate(15);
-  
-  this.expenseService.addExpense({
-    amount: 150,
-    category: 'Entertainment',
-    description: 'Last month movie',
-    date: lastMonthMid,
-    type: 'expense'
-  });
-  
-  // Add third last month expense
-  const lastMonthEnd = new Date();
-  lastMonthEnd.setMonth(today.getMonth() - 1);
-  lastMonthEnd.setDate(25);
-  
-  this.expenseService.addExpense({
-    amount: 100,
-    category: 'Transport',
-    description: 'Last month bus pass',
-    date: lastMonthEnd,
-    type: 'expense'
-  });
-  
-  console.log('✅ Last month expenses added:');
-  console.log('   - Food: €200');
-  console.log('   - Entertainment: €150');
-  console.log('   - Transport: €100');
-  console.log('   Total last month: €450');
-  
-  // Check if they were added correctly
-  setTimeout(() => {
-    this.checkDates();
-  }, 500);
-}
+  onExpenseAdded(): void { this.refresh(); this.setTab('home'); }
 
-// Add this helper method to verify
-checkDates() {
-  const expenses = this.expenseService.getExpenses();
-  const today = new Date();
-  let lastMonthTotal = 0;
-  let thisMonthTotal = 0;
-  
-  console.log('\n📊 CURRENT EXPENSES BREAKDOWN:');
-  console.log('--------------------------------');
-  
-  expenses.forEach((exp, index) => {
-    const expDate = new Date(exp.date);
-    const month = expDate.getMonth();
-    const currentMonth = today.getMonth();
-    
-    if (month === currentMonth - 1) {
-      lastMonthTotal += exp.amount;
-      console.log(`✅ LAST MONTH: ${exp.description} - €${exp.amount}`);
-    } else if (month === currentMonth) {
-      thisMonthTotal += exp.amount;
-      console.log(`📌 THIS MONTH: ${exp.description} - €${exp.amount}`);
-    }
-  });
-  
-  console.log('--------------------------------');
-  console.log(`📈 This month total: €${thisMonthTotal}`);
-  console.log(`📉 Last month total: €${lastMonthTotal}`);
-  
-  if (lastMonthTotal > 0 && thisMonthTotal > 0) {
-    const diff = ((thisMonthTotal - lastMonthTotal) / lastMonthTotal) * 100;
-    console.log(`📊 Trend: ${diff > 0 ? '📈 Up' : '📉 Down'} ${Math.abs(Math.round(diff))}%`);
-  } else if (lastMonthTotal === 0) {
-    console.log('⚠️ No last month data found!');
+  getBudgetPct(b: Budget): number   { return Math.min((b.spent / b.limit) * 100, 100); }
+  getBudgetColor(b: Budget): string {
+    const p = (b.spent / b.limit) * 100;
+    return p > 100 ? '#FF6B6B' : p > 80 ? '#FFD166' : '#06D6A0';
+  }
+  fmt(n: number): string { return `€${Math.abs(n).toFixed(2)}`; }
+
+  get alertCount(): number {
+    return this.budgetAlerts.filter((a: any) => a.type !== 'success').length
+         + this.unusualExpenses.length;
+  }
+
+  // drawAllCharts(): void { this.drawPieChart(); this.drawBarChart(); this.drawLineChart(); }
+
+  drawAllCharts(): void { 
+  // ONLY run this if we are in the browser
+  if (isPlatformBrowser(this.platformId)) {
+    this.drawPieChart(); 
+    this.drawBarChart(); 
+    this.drawLineChart(); 
   }
 }
 
-// Add this method to your Dashboard class
-addHistoricalData() {
-  const today = new Date();
-  
-  // Create dates for last 3 months
-  const lastMonth = new Date();
-  lastMonth.setMonth(today.getMonth() - 1);
-  
-  const twoMonthsAgo = new Date();
-  twoMonthsAgo.setMonth(today.getMonth() - 2);
-  
-  const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(today.getMonth() - 3);
-  
-  console.log('📅 Adding historical data...');
-  
-  // Add expenses for last 3 months
-  const expenses = [
-    // 3 months ago
-    { amount: 320, category: 'Food', desc: 'Groceries', date: threeMonthsAgo },
-    { amount: 80, category: 'Transport', desc: 'Bus pass', date: threeMonthsAgo },
-    { amount: 150, category: 'Entertainment', desc: 'Movies', date: threeMonthsAgo },
-    
-    // 2 months ago
-    { amount: 350, category: 'Food', desc: 'Groceries', date: twoMonthsAgo },
-    { amount: 90, category: 'Transport', desc: 'Bus pass', date: twoMonthsAgo },
-    { amount: 200, category: 'Entertainment', desc: 'Concert', date: twoMonthsAgo },
-    
-    // Last month
-    { amount: 380, category: 'Food', desc: 'Groceries', date: lastMonth },
-    { amount: 100, category: 'Transport', desc: 'Bus pass', date: lastMonth },
-    { amount: 180, category: 'Entertainment', desc: 'Games', date: lastMonth },
-    
-    // This month (your existing expenses)
-  ];
-  
-  expenses.forEach(exp => {
-    this.expenseService.addExpense({
-      amount: exp.amount,
-      category: exp.category,
-      description: exp.desc,
-      date: exp.date,
-      type: 'expense'
+  drawPieChart(): void {
+    const canvas = this.pieCanvas?.nativeElement;
+    if (!canvas || !this.categoryTotals.length) return;
+    const ctx = canvas.getContext('2d')!;
+    const W = canvas.width  = canvas.offsetWidth  || 220;
+    const H = canvas.height = canvas.offsetHeight || 220;
+    ctx.clearRect(0, 0, W, H);
+    const cx = W/2, cy = H/2, r = Math.min(W,H)*0.4, ri = r*0.58;
+    const total = this.categoryTotals.reduce((s,c) => s+c.total, 0);
+    if (!total) return;
+    let angle = -Math.PI/2;
+    this.categoryTotals.forEach(cat => {
+      const slice = (cat.total/total)*2*Math.PI;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,angle+slice); ctx.closePath();
+      ctx.fillStyle = cat.color; ctx.fill();
+      ctx.strokeStyle = '#0b1120'; ctx.lineWidth = 2.5; ctx.stroke();
+      angle += slice;
     });
-  });
-  
-  console.log('✅ Historical data added!');
-  console.log('📊 Months added:');
-  console.log(`   - ${threeMonthsAgo.toLocaleDateString('default', { month: 'long', year: 'numeric' })}: €550`);
-  console.log(`   - ${twoMonthsAgo.toLocaleDateString('default', { month: 'long', year: 'numeric' })}: €640`);
-  console.log(`   - ${lastMonth.toLocaleDateString('default', { month: 'long', year: 'numeric' })}: €660`);
-  
-  // Show what was added
-  setTimeout(() => {
-    this.checkMonthlyData();
-  }, 500);
-}
+    ctx.beginPath(); ctx.arc(cx,cy,ri,0,2*Math.PI); ctx.fillStyle = '#0b1120'; ctx.fill();
+    ctx.fillStyle = '#f1f5f9';
+    ctx.font = `bold ${Math.round(r*0.22)}px DM Sans,sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(`€${total.toFixed(0)}`, cx, cy-7);
+    ctx.font = `${Math.round(r*0.13)}px DM Sans,sans-serif`;
+    ctx.fillStyle = '#64748b'; ctx.fillText('total spent', cx, cy+12);
+  }
 
-// Add this helper method to verify
-checkMonthlyData() {
-  const expenses = this.expenseService.getExpenses();
-  const monthlyData = new Map();
-  
-  expenses.forEach(exp => {
-    const date = new Date(exp.date);
-    const monthYear = `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-    
-    if (!monthlyData.has(monthYear)) {
-      monthlyData.set(monthYear, 0);
+  drawBarChart(): void {
+    const canvas = this.barCanvas?.nativeElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const W = canvas.width  = canvas.offsetWidth  || 460;
+    const H = canvas.height = canvas.offsetHeight || 180;
+    ctx.clearRect(0,0,W,H);
+    const pad={t:16,r:16,b:32,l:44}, cW=W-pad.l-pad.r, cH=H-pad.t-pad.b, n=this.monthlyData.length;
+    if(!n) return;
+    const maxVal = Math.max(...this.monthlyData.flatMap(d=>[d.income,d.expense]),1);
+    const slotW=cW/n, barW=slotW*0.28, gap=slotW*0.07;
+    for(let i=0;i<=4;i++){
+      const y=pad.t+cH-(cH*i/4);
+      ctx.beginPath(); ctx.strokeStyle='rgba(148,163,184,0.1)'; ctx.lineWidth=1;
+      ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+      ctx.fillStyle='#475569'; ctx.font='9px DM Sans'; ctx.textAlign='right';
+      ctx.fillText(`€${Math.round(maxVal*i/4)}`,pad.l-4,y+3);
     }
-    monthlyData.set(monthYear, monthlyData.get(monthYear) + exp.amount);
-  });
-  
-  console.log('\n📊 EXPENSES BY MONTH:');
-  console.log('---------------------');
-  
-  // Sort by date
-  const sorted = Array.from(monthlyData.entries()).sort((a, b) => {
-    const dateA = new Date(a[0]);
-    const dateB = new Date(b[0]);
-    return dateA.getTime() - dateB.getTime();
-  });
-  
-  sorted.forEach(([month, total]) => {
-    console.log(`${month}: €${total}`);
-  });
-  
-  // Calculate prediction
-  const totals = Array.from(monthlyData.values());
-  if (totals.length >= 3) {
-    const last3 = totals.slice(-3);
-    const avg = Math.round(last3.reduce((a, b) => a + b, 0) / 3);
-    console.log('\n🔮 Next month prediction: €' + avg);
+    this.monthlyData.forEach((d,i)=>{
+      const x=pad.l+slotW*i+gap*2, incH=(d.income/maxVal)*cH, expH=(d.expense/maxVal)*cH;
+      const ig=ctx.createLinearGradient(0,pad.t+cH-incH,0,pad.t+cH);
+      ig.addColorStop(0,'#06D6A0'); ig.addColorStop(1,'#059669');
+      ctx.fillStyle=ig; ctx.fillRect(x,pad.t+cH-incH,barW,incH);
+      const eg=ctx.createLinearGradient(0,pad.t+cH-expH,0,pad.t+cH);
+      eg.addColorStop(0,'#FF6B6B'); eg.addColorStop(1,'#dc2626');
+      ctx.fillStyle=eg; ctx.fillRect(x+barW+gap,pad.t+cH-expH,barW,expH);
+      ctx.fillStyle='#64748b'; ctx.font='9px DM Sans'; ctx.textAlign='center';
+      ctx.fillText(d.month,x+barW+gap/2,H-pad.b+12);
+    });
+    const lx=W-pad.r-120;
+    ctx.fillStyle='#06D6A0'; ctx.fillRect(lx,5,8,8);
+    ctx.fillStyle='#94a3b8'; ctx.font='9px DM Sans'; ctx.textAlign='left';
+    ctx.fillText('Income',lx+11,12);
+    ctx.fillStyle='#FF6B6B'; ctx.fillRect(lx+60,5,8,8);
+    ctx.fillStyle='#94a3b8'; ctx.fillText('Expense',lx+71,12);
+  }
+
+  drawLineChart(): void {
+    const canvas = this.lineCanvas?.nativeElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const W = canvas.width  = canvas.offsetWidth  || 460;
+    const H = canvas.height = canvas.offsetHeight || 150;
+    ctx.clearRect(0,0,W,H);
+    const pad={t:12,r:16,b:28,l:44}, cW=W-pad.l-pad.r, cH=H-pad.t-pad.b, n=this.monthlyData.length;
+    if(n<2) return;
+    const balances = this.monthlyData.map(d=>d.income-d.expense);
+    const maxV = Math.max(...balances.map(Math.abs),1);
+    const midY = pad.t+cH/2;
+    ctx.beginPath(); ctx.strokeStyle='rgba(148,163,184,0.15)'; ctx.lineWidth=1;
+    ctx.setLineDash([4,4]); ctx.moveTo(pad.l,midY); ctx.lineTo(W-pad.r,midY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#475569'; ctx.font='9px DM Sans'; ctx.textAlign='right';
+    ctx.fillText('€0',pad.l-4,midY+3);
+    const pts = balances.map((b,i)=>({ x:pad.l+(cW/(n-1))*i, y:midY-(b/maxV)*(cH/2) }));
+    ctx.beginPath(); ctx.moveTo(pts[0].x,midY);
+    pts.forEach(p=>ctx.lineTo(p.x,p.y));
+    ctx.lineTo(pts[pts.length-1].x,midY); ctx.closePath();
+    const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+cH);
+    grad.addColorStop(0,'rgba(99,102,241,0.3)'); grad.addColorStop(1,'rgba(99,102,241,0.02)');
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); ctx.strokeStyle='#818cf8'; ctx.lineWidth=2.5; ctx.lineJoin='round';
+    pts.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)); ctx.stroke();
+    pts.forEach((p,i)=>{
+      ctx.beginPath(); ctx.arc(p.x,p.y,4,0,2*Math.PI);
+      ctx.fillStyle='#6366f1'; ctx.fill();
+      ctx.strokeStyle='#0b1120'; ctx.lineWidth=2; ctx.stroke();
+      ctx.fillStyle='#64748b'; ctx.font='9px DM Sans'; ctx.textAlign='center';
+      ctx.fillText(this.monthlyData[i].month,p.x,H-pad.b+12);
+    });
   }
 }
-
-}
-

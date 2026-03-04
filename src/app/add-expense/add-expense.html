@@ -1,78 +1,53 @@
-<div class="add-expense">
-  <h2>➕ Add New Transaction</h2>
-  
-  <form (ngSubmit)="onSubmit()" #expenseForm="ngForm">
-    <!-- Type Selection -->
-    <div class="form-group">
-      <label>Transaction Type</label>
-      <div class="type-buttons">
-        <button type="button" 
-                class="expense-btn"
-                [class.active]="type === 'expense'"
-                (click)="type = 'expense'">
-          💸 Expense
-        </button>
-        <button type="button" 
-                class="income-btn"
-                [class.active]="type === 'income'"
-                (click)="type = 'income'">
-          💰 Income
-        </button>
+<div class="ae-wrap">
+  <div class="ae-header">
+    <div class="ae-header-icon">＋</div>
+    <div>
+      <h2 class="ae-title">New Transaction</h2>
+      <p class="ae-sub">Record an expense or income entry</p>
+    </div>
+  </div>
+
+  <div class="type-toggle">
+    <button class="toggle-btn" [class.active-expense]="type==='expense'" (click)="type='expense'">
+      <span>📤</span> Expense
+    </button>
+    <button class="toggle-btn" [class.active-income]="type==='income'" (click)="type='income'">
+      <span>📥</span> Income
+    </button>
+  </div>
+
+  <form class="ae-form" (ngSubmit)="onSubmit()">
+    <div class="field-group">
+      <label class="field-label">Amount</label>
+      <div class="amount-input-wrap">
+        <span class="currency-symbol">€</span>
+        <input class="field-input amount-input" type="number" [(ngModel)]="amount" name="amount" placeholder="0.00" min="0" step="0.01"/>
       </div>
     </div>
 
-    <!-- Amount and Description Row -->
-    <div class="form-row">
-      <div class="form-group">
-        <label for="amount">💰 Amount (€)</label>
-        <input type="number" 
-               id="amount" 
-               [(ngModel)]="amount" 
-               name="amount" 
-               min="0" 
-               step="0.01" 
-               placeholder="0.00"
-               required>
-      </div>
+    <div class="field-group">
+      <label class="field-label">Description</label>
+      <input class="field-input" type="text" [(ngModel)]="description" name="description" placeholder="e.g. Groceries at Lidl"/>
+    </div>
 
-      <div class="form-group">
-        <label for="description">📝 Description</label>
-        <input type="text" 
-               id="description" 
-               [(ngModel)]="description" 
-               name="description" 
-               placeholder="What's this for?"
-               required>
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <div class="select-wrap">
+          <select class="field-input field-select" [(ngModel)]="category" name="category">
+            <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.icon }} {{ cat.name }}</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Date</label>
+        <input class="field-input" type="date" [(ngModel)]="date" name="date"/>
       </div>
     </div>
 
-    <!-- Date and Category Row -->
-    <div class="form-row">
-      <div class="form-group">
-        <label for="date">📅 Date</label>
-        <input type="date" 
-               id="date" 
-               [(ngModel)]="date" 
-               name="date" 
-               required
-               class="date-input">
-      </div>
-
-      <div class="form-group">
-        <label for="category">🏷️ Category</label>
-        <select id="category" [(ngModel)]="category" name="category" class="category-select">
-          <option *ngFor="let cat of categories" 
-                  [value]="cat.name"
-                  [disabled]="type === 'income' && cat.name === 'Income' ? false : type === 'income'">
-            {{cat.icon}} {{cat.name}}
-          </option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Submit Button -->
-    <button type="submit" class="submit-btn">
-      <span>🎯</span> Add {{type === 'expense' ? 'Expense' : 'Income'}}
+    <button type="submit" class="submit-btn" [class.income-btn]="type==='income'">
+      {{ type === 'expense' ? '📤 Add Expense' : '📥 Add Income' }}
     </button>
   </form>
 </div>

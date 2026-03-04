@@ -1,38 +1,40 @@
-<div class="expense-list">
-  <h2>Recent Transactions</h2>
-  
-  <div *ngIf="expenses.length === 0" class="empty-state">
-    No transactions yet. Add your first expense or income!
+<div class="el-wrap">
+  <div class="el-header">
+    <h2 class="el-title">Transactions</h2>
+    <span class="el-count">{{ expenses.length }} records</span>
   </div>
-  
-  <div class="transactions">
-    <div *ngFor="let expense of expenses" 
-         class="transaction-item"
-         [style.borderLeftColor]="getCategoryColor(expense.category)">
-      <div class="transaction-info">
-        <div class="category-badge" [style.background]="getCategoryColor(expense.category)">
-          {{expense.category}}
+
+  <div class="undo-bar" *ngIf="showUndoMessage" [@fadeIn]>
+    <span>🗑 Transaction deleted</span>
+    <button class="undo-btn" (click)="undoDelete()">↩ Undo</button>
+    <button class="undo-close" (click)="hideUndoMessage()">✕</button>
+  </div>
+
+  <div class="el-empty" *ngIf="!expenses.length">
+    <div class="empty-icon">📭</div>
+    <p>No transactions yet</p>
+    <span>Add your first expense or income to get started</span>
+  </div>
+
+  <div class="el-list" *ngIf="expenses.length">
+    <div class="el-item" *ngFor="let exp of expenses">
+      <div class="el-dot" [style.background]="getCategoryColor(exp.category)"></div>
+      <div class="el-icon-wrap" [style.background]="getCategoryColor(exp.category) + '1a'">
+        <span class="el-arrow" [class.income]="exp.type==='income'">{{ exp.type==='income' ? '↑' : '↓' }}</span>
+      </div>
+      <div class="el-body">
+        <div class="el-desc">{{ exp.description }}</div>
+        <div class="el-meta">
+          <span class="el-cat" [style.background]="getCategoryColor(exp.category)+'1a'" [style.color]="getCategoryColor(exp.category)">{{ exp.category }}</span>
+          <span class="el-date">{{ exp.date | date:'dd MMM yyyy' }}</span>
         </div>
-        <div class="description">{{expense.description}}</div>
-        <div class="date">{{expense.date | date:'MMM d, yyyy'}}</div>
       </div>
-      
-      <div class="transaction-amount">
-        <span [class.income-text]="expense.type === 'income'"
-              [class.expense-text]="expense.type === 'expense'">
-          {{expense.type === 'income' ? '+' : '-'}}€{{expense.amount | number:'1.2-2'}} <!-- Changed ₹ to € -->
-        </span>
-        <button class="delete-btn" (click)="deleteExpense(expense.id)">×</button>
+      <div class="el-right">
+        <div class="el-amount" [class.income-amt]="exp.type==='income'" [class.expense-amt]="exp.type==='expense'">
+          {{ exp.type==='income' ? '+' : '-' }}€{{ exp.amount.toFixed(2) }}
+        </div>
+        <button class="el-delete" (click)="deleteExpense(exp.id)">✕</button>
       </div>
     </div>
   </div>
-  @if (showUndoMessage) {
-  <div class="undo-notification" [@fadeIn]>
-    <div class="undo-message">
-      <span>🗑️ Transaction deleted</span>
-    </div>
-    <button class="undo-btn" (click)="undoDelete()">Undo</button>
-    <button class="undo-close" (click)="hideUndoMessage()">×</button>
-  </div>
-}
 </div>

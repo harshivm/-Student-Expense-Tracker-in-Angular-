@@ -68,4 +68,16 @@ private subscription!: Subscription; // Add this
     const cat = this.categories.find(c => c.name === category);
     return cat ? cat.color : '#999';
   }
+
+  get hasExpenses(): boolean {
+    return this.categoryTotals.some(c => c.total > 0);
+  }
+
+  get totalSpend(): number {
+    return this.categoryTotals.reduce((s, c) => s + c.total, 0);
+  }
+
+  get activeCategories(): number {
+    return this.categoryTotals.filter(c => c.total > 0).length;
+  }
 }

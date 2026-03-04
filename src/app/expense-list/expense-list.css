@@ -1,268 +1,63 @@
-.expense-list {
-  padding: 25px;
-  max-height: 500px;
-  display: flex;
-  flex-direction: column;
-}
-
-.expense-list h2 {
-  margin: 0 0 25px 0;
-  font-size: 1.5rem;
-  color: var(--dark-color);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  position: sticky;
-  top: 0;
-  background: white;
-  padding-bottom: 15px;
-  z-index: 1;
-}
-
-.expense-list h2::before {
-  content: '📋';
-  font-size: 1.2rem;
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #adb5bd;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
-.empty-state::before {
-  content: '📊';
-  font-size: 3rem;
-  opacity: 0.5;
-}
-
-.empty-state p {
-  font-size: 1.1rem;
-  max-width: 300px;
-  margin: 0;
-}
-
-/* Transactions List */
-.transactions {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:host{font-family:'DM Sans',sans-serif;color:#f1f5f9;display:block}
+.el-wrap{background:#0f172a;border:1px solid rgba(148,163,184,0.10);border-radius:16px;overflow:auto}
+.el-header{display:flex;align-items:center;justify-content:space-between;padding:22px 22px 14px}
+.el-title{font-size:17px;font-weight:700}
+.el-count{font-size:12px;color:#64748b;background:#1e293b;padding:3px 10px;border-radius:20px}
+.undo-bar{display:flex;align-items:center;gap:12px;padding:10px 20px;background:rgba(99,102,241,0.10);border-bottom:1px solid rgba(99,102,241,0.18);font-size:13px}
+.undo-bar span{flex:1;color:#94a3b8}
+.undo-btn{background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#818cf8;padding:5px 14px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+.undo-close{background:none;border:none;color:#64748b;font-size:14px;cursor:pointer;padding:4px}
+.el-empty{display:flex;flex-direction:column;align-items:center;padding:56px 24px;gap:8px}
+.empty-icon{font-size:42px;margin-bottom:4px}
+.el-empty p{font-size:15px;font-weight:600;color:#94a3b8}
+.el-empty span{font-size:12px;color:#475569}
+.el-list{display:flex;flex-direction:column}
+/* .el-item {
+  border: 1px solid yellow !important; 
+  min-height: 50px; 
+} */
+.el-item:last-child{border-bottom:none}
+.el-item:hover{background:rgba(255,255,255,0.02)}
+.el-item:hover .el-delete{opacity:1}
+.el-dot{width:3px;height:34px;border-radius:2px;flex-shrink:0}
+.el-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.el-arrow{font-size:17px;font-weight:700;color:#FF6B6B}
+.el-arrow.income{color:#06D6A0}
+.el-body{flex:1;min-width:0}
+/* .el-desc{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} */
+.el-meta{display:flex;align-items:center;gap:8px;margin-top:3px}
+.el-cat{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.4px}
+.el-date{font-size:11px;color:#475569}
+.el-right{display:flex;align-items:center;gap:10px}
+.el-amount{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap}
+.income-amt{color:#06D6A0}
+.expense-amt{color:#FF6B6B}
+/* .el-delete{background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;width:26px;height:26px;border-radius:6px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s,background 0.15s} */
+.el-delete:hover{background:rgba(255,107,107,0.22)}
+.el-item {
+  display: flex;             /* REQUIRED: Aligns items in a row */
+  align-items: center;       /* Centers icon and text vertically */
   gap: 12px;
-  padding-right: 5px;
+  padding: 13px 18px;
+  border-bottom: 1px solid rgba(148,163,184,0.06);
+  transition: background 0.15s;
+  width: 100%;               /* Ensures it fills the card width */
+  min-height: 60px;          /* Guaranteed visibility */
+  background: transparent;   /* Ensures no dark-on-dark hiding */
 }
 
-/* Hide scrollbar but keep functionality */
-.transactions::-webkit-scrollbar {
-  width: 4px;
-}
-
-.transactions::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.transactions::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-}
-
-/* Transaction Item */
-.transaction-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 20px;
-  background: #f8f9fa;
-  border-radius: var(--border-radius-md);
-  border-left: 4px solid;
-  transition: var(--transition);
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.transaction-item:hover {
-  transform: translateX(5px);
-  background: white;
-  box-shadow: var(--shadow-md);
-}
-
-/* Transaction Info */
-.transaction-info {
-  flex: 1;
-}
-
-.category-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  color: white;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.description {
-  font-weight: 600;
-  color: var(--dark-color);
-  margin-bottom: 5px;
-  font-size: 1rem;
-}
-
-.date {
-  font-size: 0.85rem;
-  color: var(--gray-color);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.date::before {
-  content: '📅';
-  font-size: 0.8rem;
-}
-
-/* Transaction Amount */
-.transaction-amount {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.income-text {
-  color: #28a745;
-  background: linear-gradient(135deg, #28a745, #20c997);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.expense-text {
-  color: #dc3545;
-  background: linear-gradient(135deg, #dc3545, #fd7e14);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.delete-btn {
-  width: 32px;
-  height: 32px;
-  background: var(--danger-gradient);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  transition: var(--transition);
-  opacity: 0.7;
-}
-
-.delete-btn:hover {
-  opacity: 1;
-  transform: scale(1.1);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .expense-list {
-    padding: 20px;
-    max-height: 400px;
-  }
-  
-  .transaction-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-  
-  .transaction-amount {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .undo-notification {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #2c3e50, #34495e);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  min-width: 300px;
-  justify-content: space-between;
-}
-
-.undo-message {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* Ensure the text inside is visible */
+.el-desc {
+  color: #f1f5f9;            /* Explicit white-ish text */
+  font-size: 13px;
   font-weight: 500;
-  flex: 1;
+  display: block;            /* Ensures it takes up space */
 }
 
-.undo-btn {
-  background: linear-gradient(135deg, #06D6A0, #4CAF50);
-  color: white;
-  border: none;
-  padding: 6px 15px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.undo-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(6, 214, 160, 0.3);
-}
-
-.undo-close {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 0 0 10px;
-}
-
-.undo-close:hover {
-  color: white;
-}
-
-/* For responsive design */
-@media (max-width: 768px) {
-  .undo-notification {
-    width: 90%;
-    min-width: auto;
-    left: 5%;
-    transform: translateX(0);
-  }
-}
+/* Make the delete button visible for now so you can test clicking */
+.el-delete {
+  opacity: 0.8 !important;   
+  background: rgba(255,107,107,0.15);
 }

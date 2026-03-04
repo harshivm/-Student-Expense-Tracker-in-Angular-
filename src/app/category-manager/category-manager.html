@@ -1,132 +1,90 @@
-<div class="category-manager">
-  <div class="manager-header">
-    <h2>🎯 Manage Categories & Budgets</h2>
-    <p>Customize your spending categories and set budget limits</p>
+<div class="cm-wrap">
+  <div class="cm-header">
+    <h2 class="cm-title">Category Manager</h2>
+    <span class="cm-sub">{{ categories.length }} categories</span>
   </div>
 
-  <!-- Add New Category -->
-  <div class="add-category-section">
-    <h3>➕ Add New Category</h3>
-    <div class="add-category-form">
-      <input 
-        type="text" 
-        [(ngModel)]="newCategoryName" 
-        placeholder="Category name (e.g., Rent, Gym)"
-        class="category-name-input">
-      
-      <div class="color-picker">
-        <span class="picker-label">Color:</span>
-        <div class="color-options">
-          <div 
-            *ngFor="let color of colors" 
-            class="color-option" 
-            [style.background]="color"
-            [class.selected]="newCategoryColor === color"
-            (click)="newCategoryColor = color">
-          </div>
+  <!-- Add new category -->
+  <div class="cm-add-card">
+    <h3 class="cm-section-title">Add New Category</h3>
+    <div class="cm-add-form">
+      <input class="cm-input" type="text" [(ngModel)]="newCategoryName" placeholder="Category name" maxlength="24"/>
+      <div class="cm-icon-pick">
+        <span class="pick-label">Icon</span>
+        <div class="icon-grid">
+          <button class="icon-btn" *ngFor="let icon of icons"
+                  [class.selected]="newCategoryIcon === icon"
+                  (click)="newCategoryIcon = icon">{{ icon }}</button>
         </div>
       </div>
-      
-      <div class="icon-picker">
-        <span class="picker-label">Icon:</span>
-        <div class="icon-options">
-          <div 
-            *ngFor="let icon of icons" 
-            class="icon-option"
-            [class.selected]="newCategoryIcon === icon"
-            (click)="newCategoryIcon = icon">
-            {{icon}}
-          </div>
+      <div class="cm-color-pick">
+        <span class="pick-label">Colour</span>
+        <div class="color-grid">
+          <button class="color-btn" *ngFor="let color of colors"
+                  [style.background]="color"
+                  [class.selected]="newCategoryColor === color"
+                  (click)="newCategoryColor = color">
+          </button>
         </div>
       </div>
-      
-      <button class="add-btn" (click)="addCategory()" [disabled]="!newCategoryName.trim()">
-        ➕ Add Category
+      <button class="cm-add-btn" (click)="addCategory()" [disabled]="!newCategoryName.trim()">
+        + Add Category
       </button>
     </div>
   </div>
 
-  <!-- Categories List -->
-  <div class="categories-section">
-    <h3>📋 Your Categories</h3>
-    
-    <div class="categories-list">
-      <div *ngFor="let category of getRemainingCategories()" class="category-item">
-        <!-- Edit Mode -->
-        <div *ngIf="editingCategory?.name === category.name" class="edit-mode">
-          <input 
-            type="text" 
-            [(ngModel)]="editCategoryName" 
-            class="edit-name-input">
-          
-          <div class="edit-controls">
-            <div class="color-options">
-              <div 
-                *ngFor="let color of colors" 
-                class="color-option" 
-                [style.background]="color"
-                [class.selected]="editCategoryColor === color"
-                (click)="editCategoryColor = color">
-              </div>
+  <!-- Category list -->
+  <div class="cm-list">
+    <h3 class="cm-section-title">Existing Categories</h3>
+
+    <div class="cm-item" *ngFor="let cat of getRemainingCategories()">
+      <!-- View mode -->
+      <ng-container *ngIf="editingCategory?.name !== cat.name">
+        <div class="cm-item-icon" [style.background]="cat.color + '22'">{{ cat.icon }}</div>
+        <div class="cm-item-body">
+          <span class="cm-item-name">{{ cat.name }}</span>
+          <span class="cm-item-default" *ngIf="cat.isDefault">Default</span>
+        </div>
+        <div class="cm-item-budget">
+          <span class="cm-budget-label">Budget</span>
+          <input class="cm-budget-input" type="number" min="0" step="10"
+                 [value]="getBudgetForCategory(cat.name)?.limit || 0"
+                 (change)="updateBudgetLimit(cat.name, $event)"/>
+        </div>
+        <div class="cm-item-actions">
+          <button class="cm-btn-edit" (click)="startEdit(cat)">✎</button>
+          <button class="cm-btn-delete" *ngIf="!cat.isDefault" (click)="deleteCategory(cat)">✕</button>
+        </div>
+      </ng-container>
+
+      <!-- Edit mode -->
+      <ng-container *ngIf="editingCategory?.name === cat.name">
+        <div class="cm-edit-form">
+          <input class="cm-input" type="text" [(ngModel)]="editCategoryName" placeholder="Category name"/>
+          <div class="cm-icon-pick">
+            <span class="pick-label">Icon</span>
+            <div class="icon-grid">
+              <button class="icon-btn" *ngFor="let icon of icons"
+                      [class.selected]="editCategoryIcon === icon"
+                      (click)="editCategoryIcon = icon">{{ icon }}</button>
             </div>
-            
-            <div class="icon-options">
-              <div 
-                *ngFor="let icon of icons" 
-                class="icon-option"
-                [class.selected]="editCategoryIcon === icon"
-                (click)="editCategoryIcon = icon">
-                {{icon}}
-              </div>
+          </div>
+          <div class="cm-color-pick">
+            <span class="pick-label">Colour</span>
+            <div class="color-grid">
+              <button class="color-btn" *ngFor="let color of colors"
+                      [style.background]="color"
+                      [class.selected]="editCategoryColor === color"
+                      (click)="editCategoryColor = color">
+              </button>
             </div>
-            
-            <div class="edit-buttons">
-              <button class="save-btn" (click)="saveEdit()">💾 Save</button>
-              <button class="cancel-btn" (click)="cancelEdit()">✖ Cancel</button>
-            </div>
+          </div>
+          <div class="cm-edit-actions">
+            <button class="cm-save-btn" (click)="saveEdit()">Save</button>
+            <button class="cm-cancel-btn" (click)="cancelEdit()">Cancel</button>
           </div>
         </div>
-        
-        <!-- Display Mode -->
-        <div *ngIf="editingCategory?.name !== category.name" class="display-mode">
-          <div class="category-info">
-            <div class="category-preview" [style.background]="category.color">
-              {{category.icon}}
-            </div>
-            <div class="category-details">
-              <div class="category-name">{{category.name}}</div>
-              <div class="category-type">{{category.isDefault ? 'Default' : 'Custom'}}</div>
-            </div>
-          </div>
-          
-          <!-- Budget Setting -->
-          <div class="budget-setting">
-            <label>Budget Limit: €</label>
-            <input 
-              type="number" 
-              [value]="getBudgetForCategory(category.name)?.limit || 0"
-              (change)="updateBudgetLimit(category.name, $event)"
-              min="0"
-              step="10"
-              class="budget-input">
-          </div>
-          
-          <!-- Actions -->
-          <div class="category-actions">
-            <button class="edit-btn" (click)="startEdit(category)" *ngIf="!category.isDefault">
-              ✏️ Edit
-            </button>
-            <button class="delete-btn" (click)="deleteCategory(category)" *ngIf="!category.isDefault">
-              🗑️ Delete
-            </button>
-            <span class="default-badge" *ngIf="category.isDefault">Default</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div *ngIf="getRemainingCategories().length === 0" class="no-categories">
-      No categories yet. Add your first category above!
+      </ng-container>
     </div>
   </div>
 </div>
