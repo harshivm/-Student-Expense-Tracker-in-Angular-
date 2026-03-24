@@ -1,0 +1,90 @@
+<div class="cm-wrap">
+  <div class="cm-header">
+    <h2 class="cm-title">Category Manager</h2>
+    <span class="cm-sub">{{ categories.length }} categories</span>
+  </div>
+
+  <!-- Add new category -->
+  <div class="cm-add-card">
+    <h3 class="cm-section-title">Add New Category</h3>
+    <div class="cm-add-form">
+      <input class="cm-input" type="text" [(ngModel)]="newCategoryName" placeholder="Category name" maxlength="24"/>
+      <div class="cm-icon-pick">
+        <span class="pick-label">Icon</span>
+        <div class="icon-grid">
+          <button class="icon-btn" *ngFor="let icon of icons"
+                  [class.selected]="newCategoryIcon === icon"
+                  (click)="newCategoryIcon = icon">{{ icon }}</button>
+        </div>
+      </div>
+      <div class="cm-color-pick">
+        <span class="pick-label">Colour</span>
+        <div class="color-grid">
+          <button class="color-btn" *ngFor="let color of colors"
+                  [style.background]="color"
+                  [class.selected]="newCategoryColor === color"
+                  (click)="newCategoryColor = color">
+          </button>
+        </div>
+      </div>
+      <button class="cm-add-btn" (click)="addCategory()" [disabled]="!newCategoryName.trim()">
+        + Add Category
+      </button>
+    </div>
+  </div>
+
+  <!-- Category list -->
+  <div class="cm-list">
+    <h3 class="cm-section-title">Existing Categories</h3>
+
+    <div class="cm-item" *ngFor="let cat of getRemainingCategories()">
+      <!-- View mode -->
+      <ng-container *ngIf="editingCategory?.name !== cat.name">
+        <div class="cm-item-icon" [style.background]="cat.color + '22'">{{ cat.icon }}</div>
+        <div class="cm-item-body">
+          <span class="cm-item-name">{{ cat.name }}</span>
+          <span class="cm-item-default" *ngIf="cat.isDefault">Default</span>
+        </div>
+        <div class="cm-item-budget">
+          <span class="cm-budget-label">Budget</span>
+          <input class="cm-budget-input" type="number" min="0" step="10"
+                 [value]="getBudgetForCategory(cat.name)?.limit || 0"
+                 (change)="updateBudgetLimit(cat.name, $event)"/>
+        </div>
+        <div class="cm-item-actions">
+          <button class="cm-btn-edit" (click)="startEdit(cat)">✎</button>
+          <button class="cm-btn-delete" *ngIf="!cat.isDefault" (click)="deleteCategory(cat)">✕</button>
+        </div>
+      </ng-container>
+
+      <!-- Edit mode -->
+      <ng-container *ngIf="editingCategory?.name === cat.name">
+        <div class="cm-edit-form">
+          <input class="cm-input" type="text" [(ngModel)]="editCategoryName" placeholder="Category name"/>
+          <div class="cm-icon-pick">
+            <span class="pick-label">Icon</span>
+            <div class="icon-grid">
+              <button class="icon-btn" *ngFor="let icon of icons"
+                      [class.selected]="editCategoryIcon === icon"
+                      (click)="editCategoryIcon = icon">{{ icon }}</button>
+            </div>
+          </div>
+          <div class="cm-color-pick">
+            <span class="pick-label">Colour</span>
+            <div class="color-grid">
+              <button class="color-btn" *ngFor="let color of colors"
+                      [style.background]="color"
+                      [class.selected]="editCategoryColor === color"
+                      (click)="editCategoryColor = color">
+              </button>
+            </div>
+          </div>
+          <div class="cm-edit-actions">
+            <button class="cm-save-btn" (click)="saveEdit()">Save</button>
+            <button class="cm-cancel-btn" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

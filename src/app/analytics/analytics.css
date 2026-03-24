@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:host{font-family:'DM Sans',sans-serif;color:#f1f5f9;display:block}
+.an-wrap{background:#0f172a;border:1px solid rgba(148,163,184,0.10);border-radius:16px;padding:24px}
+.an-header{display:flex;align-items:baseline;gap:12px;margin-bottom:22px}
+.an-title{font-size:17px;font-weight:700}
+.an-sub{font-size:12px;color:#64748b;margin-left:auto}
+.an-empty{display:flex;flex-direction:column;align-items:center;padding:48px 24px;gap:8px}
+.empty-icon{font-size:40px;margin-bottom:4px}
+.an-empty p{font-size:14px;font-weight:600;color:#94a3b8}
+.an-empty span{font-size:12px;color:#475569}
+.an-table{display:flex;flex-direction:column;gap:0;margin-bottom:20px}
+.an-row{display:grid;grid-template-columns:2fr 110px 70px 1fr;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(148,163,184,0.07)}
+.an-row:last-child{border-bottom:none}
+.an-head{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.6px;padding-bottom:10px}
+.bar-col{padding-left:4px}
+.an-cat-cell{display:flex;align-items:center;gap:10px}
+.an-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.an-cat-name{font-size:13px;font-weight:500}
+.an-amount{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:#f1f5f9}
+.an-pct{font-size:12px;font-weight:600;color:#94a3b8;font-family:'DM Mono',monospace}
+.an-bar-cell{height:6px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+.an-bar-fill{height:100%;border-radius:4px;transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1)}
+.an-totals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px solid rgba(148,163,184,0.10);padding-top:18px;margin-top:4px}
+.an-total-item{background:#1e293b;border-radius:10px;padding:14px 16px}
+.an-total-label{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:5px}
+.an-total-val{font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:#f1f5f9}

@@ -1,0 +1,51 @@
+<div class="an-wrap">
+  <div class="an-header">
+    <h2 class="an-title">Spending Analytics</h2>
+    <span class="an-sub">Breakdown by category</span>
+  </div>
+
+  <div class="an-empty" *ngIf="!hasExpenses">
+    <div class="empty-icon">📈</div>
+    <p>No expense data yet</p>
+    <span>Add expenses to see your analytics</span>
+  </div>
+
+  <div class="an-table" *ngIf="hasExpenses">
+    <div class="an-row an-head">
+      <span>Category</span>
+      <span>Amount</span>
+      <span>Share</span>
+      <span class="bar-col">Distribution</span>
+    </div>
+    <div class="an-row" *ngFor="let item of categoryTotals">
+      <div class="an-cat-cell">
+        <span class="an-dot" [style.background]="getCategoryColor(item.category)"></span>
+        <span class="an-cat-name">{{ item.category }}</span>
+      </div>
+      <span class="an-amount">€{{ item.total.toFixed(2) }}</span>
+      <span class="an-pct">{{ item.percentage.toFixed(1) }}%</span>
+      <div class="an-bar-cell">
+        <div class="an-bar-fill"
+             [style.width.%]="item.percentage"
+             [style.background]="getCategoryColor(item.category)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary totals -->
+  <div class="an-totals" *ngIf="hasExpenses">
+    <div class="an-total-item">
+      <span class="an-total-label">Total Tracked</span>
+      <span class="an-total-val">€{{ totalSpend.toFixed(2) }}</span>
+    </div>
+    <div class="an-total-item">
+      <span class="an-total-label">Categories</span>
+      <span class="an-total-val">{{ activeCategories }}</span>
+    </div>
+    <div class="an-total-item">
+      <span class="an-total-label">Biggest Spend</span>
+      <span class="an-total-val">{{ categoryTotals[0]?.category || '—' }}</span>
+    </div>
+  </div>
+</div>

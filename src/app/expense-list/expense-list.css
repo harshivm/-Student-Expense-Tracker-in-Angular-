@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:host{font-family:'DM Sans',sans-serif;color:#f1f5f9;display:block}
+.el-wrap{background:#0f172a;border:1px solid rgba(148,163,184,0.10);border-radius:16px;overflow:auto}
+.el-header{display:flex;align-items:center;justify-content:space-between;padding:22px 22px 14px}
+.el-title{font-size:17px;font-weight:700}
+.el-count{font-size:12px;color:#64748b;background:#1e293b;padding:3px 10px;border-radius:20px}
+.undo-bar{display:flex;align-items:center;gap:12px;padding:10px 20px;background:rgba(99,102,241,0.10);border-bottom:1px solid rgba(99,102,241,0.18);font-size:13px}
+.undo-bar span{flex:1;color:#94a3b8}
+.undo-btn{background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#818cf8;padding:5px 14px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+.undo-close{background:none;border:none;color:#64748b;font-size:14px;cursor:pointer;padding:4px}
+.el-empty{display:flex;flex-direction:column;align-items:center;padding:56px 24px;gap:8px}
+.empty-icon{font-size:42px;margin-bottom:4px}
+.el-empty p{font-size:15px;font-weight:600;color:#94a3b8}
+.el-empty span{font-size:12px;color:#475569}
+.el-list{display:flex;flex-direction:column}
+/* .el-item {
+  border: 1px solid yellow !important; 
+  min-height: 50px; 
+} */
+.el-item:last-child{border-bottom:none}
+.el-item:hover{background:rgba(255,255,255,0.02)}
+.el-item:hover .el-delete{opacity:1}
+.el-dot{width:3px;height:34px;border-radius:2px;flex-shrink:0}
+.el-icon-wrap{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.el-arrow{font-size:17px;font-weight:700;color:#FF6B6B}
+.el-arrow.income{color:#06D6A0}
+.el-body{flex:1;min-width:0}
+/* .el-desc{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} */
+.el-meta{display:flex;align-items:center;gap:8px;margin-top:3px}
+.el-cat{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.4px}
+.el-date{font-size:11px;color:#475569}
+.el-right{display:flex;align-items:center;gap:10px}
+.el-amount{font-size:14px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap}
+.income-amt{color:#06D6A0}
+.expense-amt{color:#FF6B6B}
+/* .el-delete{background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;width:26px;height:26px;border-radius:6px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s,background 0.15s} */
+.el-delete:hover{background:rgba(255,107,107,0.22)}
+.el-item {
+  display: flex;             /* REQUIRED: Aligns items in a row */
+  align-items: center;       /* Centers icon and text vertically */
+  gap: 12px;
+  padding: 13px 18px;
+  border-bottom: 1px solid rgba(148,163,184,0.06);
+  transition: background 0.15s;
+  width: 100%;               /* Ensures it fills the card width */
+  min-height: 60px;          /* Guaranteed visibility */
+  background: transparent;   /* Ensures no dark-on-dark hiding */
+}
+
+/* Ensure the text inside is visible */
+.el-desc {
+  color: #f1f5f9;            /* Explicit white-ish text */
+  font-size: 13px;
+  font-weight: 500;
+  display: block;            /* Ensures it takes up space */
+}
+
+/* Make the delete button visible for now so you can test clicking */
+.el-delete {
+  opacity: 0.8 !important;   
+  background: rgba(255,107,107,0.15);
+}

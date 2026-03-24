@@ -1,0 +1,53 @@
+<div class="ae-wrap">
+  <div class="ae-header">
+    <div class="ae-header-icon">＋</div>
+    <div>
+      <h2 class="ae-title">New Transaction</h2>
+      <p class="ae-sub">Record an expense or income entry</p>
+    </div>
+  </div>
+
+  <div class="type-toggle">
+    <button class="toggle-btn" [class.active-expense]="type==='expense'" (click)="type='expense'">
+      <span>📤</span> Expense
+    </button>
+    <button class="toggle-btn" [class.active-income]="type==='income'" (click)="type='income'">
+      <span>📥</span> Income
+    </button>
+  </div>
+
+  <form class="ae-form" (ngSubmit)="onSubmit()">
+    <div class="field-group">
+      <label class="field-label">Amount</label>
+      <div class="amount-input-wrap">
+        <span class="currency-symbol">€</span>
+        <input class="field-input amount-input" type="number" [(ngModel)]="amount" name="amount" placeholder="0.00" min="0" step="0.01"/>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Description</label>
+      <input class="field-input" type="text" [(ngModel)]="description" name="description" placeholder="e.g. Groceries at Lidl"/>
+    </div>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Category</label>
+        <div class="select-wrap">
+          <select class="field-input field-select" [(ngModel)]="category" name="category">
+            <option *ngFor="let cat of categories" [value]="cat.name">{{ cat.icon }} {{ cat.name }}</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Date</label>
+        <input class="field-input" type="date" [(ngModel)]="date" name="date"/>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" [class.income-btn]="type==='income'">
+      {{ type === 'expense' ? '📤 Add Expense' : '📥 Add Income' }}
+    </button>
+  </form>
+</div>

@@ -1,0 +1,209 @@
+<div class="dash-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">💸</span>
+      <span class="brand-name">StudFin</span>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item" [class.active]="activeTab==='home'"        (click)="setTab('home')">
+        <span class="nav-icon">⬡</span> Overview
+      </button>
+      <button class="nav-item" [class.active]="activeTab==='add'"         (click)="setTab('add')">
+        <span class="nav-icon">＋</span> Add Transaction
+      </button>
+      <button class="nav-item" [class.active]="activeTab==='transactions'" (click)="setTab('transactions')">
+        <span class="nav-icon">≡</span> Transactions
+      </button>
+      <button class="nav-item" [class.active]="activeTab==='budgets'"     (click)="setTab('budgets')">
+        <span class="nav-icon">▣</span> Budgets
+      </button>
+      <button class="nav-item" [class.active]="activeTab==='analytics'"   (click)="setTab('analytics')">
+        <span class="nav-icon">◎</span> Analytics
+      </button>
+      <button class="nav-item" [class.active]="activeTab==='alerts'"      (click)="setTab('alerts')">
+        <span class="nav-icon">◈</span> Alerts
+        <span class="badge" *ngIf="alertCount > 0">{{alertCount}}</span>
+      </button>
+      <button class="nav-item" [class.active]="activeTab==='categories'"  (click)="setTab('categories')">
+        <span class="nav-icon">⊞</span> Categories
+      </button>
+    </nav>
+
+    <div class="sidebar-summary">
+      <div class="ss-label">Net Balance</div>
+      <div class="ss-value" [class.negative]="balance < 0">
+        {{ balance >= 0 ? '+' : '-' }}{{ fmt(balance) }}
+      </div>
+      <div class="ss-trend">{{ trend || 'No trend data yet' }}</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">
+          {{ activeTab === 'home'         ? 'Dashboard Overview'   :
+             activeTab === 'add'          ? 'Add Transaction'      :
+             activeTab === 'transactions' ? 'All Transactions'     :
+             activeTab === 'budgets'      ? 'Budget Overview'      :
+             activeTab === 'analytics'    ? 'Spending Analytics'   :
+             activeTab === 'alerts'       ? 'Smart Alerts'         :
+                                           'Category Manager' }}
+        </h1>
+        <span class="page-sub" *ngIf="totalIncome > 0">Savings rate this month: {{ savingsRate }}%</span>
+        <span class="page-sub" *ngIf="totalIncome === 0">Add income to track your savings rate</span>
+      </div>
+      <div class="topbar-right">
+        <div class="forecast-pill" *ngIf="nextMonth > 0">
+          🔮 Next month forecast: <strong>€{{ nextMonth }}</strong>
+        </div>
+        <button class="quick-add-btn" (click)="setTab('add')">+ Add</button>
+      </div>
+    </header>
+
+    <!-- ══════════ HOME TAB ══════════ -->
+    <div *ngIf="activeTab === 'home'" class="tab-content" [class.visible]="animateIn">
+
+      <!-- KPI cards -->
+      <div class="kpi-row">
+        <div class="kpi-card income">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Total Income</div>
+            <div class="kpi-value">{{ fmt(totalIncome) }}</div>
+          </div>
+        </div>
+        <div class="kpi-card expenses">
+          <div class="kpi-icon">💸</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Total Expenses</div>
+            <div class="kpi-value">{{ fmt(totalExpenses) }}</div>
+          </div>
+        </div>
+        <div class="kpi-card balance" [class.neg]="balance < 0">
+          <div class="kpi-icon">{{ balance >= 0 ? '📈' : '📉' }}</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Net Balance</div>
+            <div class="kpi-value">{{ balance < 0 ? '-' : '+' }}{{ fmt(balance) }}</div>
+          </div>
+        </div>
+        <div class="kpi-card savings">
+          <div class="kpi-icon">🎯</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Savings Rate</div>
+            <div class="kpi-value">{{ savingsRate }}%</div>
+          </div>
+          <div class="savings-ring">
+            <svg viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15" fill="none" stroke="#a78bfa" stroke-width="3"
+                      [attr.stroke-dasharray]="(savingsRate > 0 ? (savingsRate/100)*94 : 0) + ' 94'"
+                      stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="chart-row">
+        <div class="chart-card donut-card">
+          <div class="chart-header">
+            <h3>Spending by Category</h3>
+            <span class="chart-sub">All time</span>
+          </div>
+          <div class="donut-wrap">
+            <canvas #pieCanvas class="pie-canvas"></canvas>
+          </div>
+          <div class="pie-legend">
+            <div class="legend-item" *ngFor="let c of categoryTotals.slice(0,5)">
+              <span class="legend-dot" [style.background]="c.color"></span>
+              <span class="legend-name">{{ c.icon }} {{ c.name }}</span>
+              <span class="legend-pct">{{ c.pct.toFixed(1) }}%</span>
+            </div>
+            <div class="legend-empty" *ngIf="!categoryTotals.length">No expenses yet</div>
+          </div>
+        </div>
+
+        <div class="chart-card bar-card">
+          <div class="chart-header">
+            <h3>Income vs Expenses</h3>
+            <span class="chart-sub">Last 6 months</span>
+          </div>
+          <canvas #barCanvas class="bar-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Line chart -->
+      <div class="chart-card full-card">
+        <div class="chart-header">
+          <h3>Balance Trend</h3>
+          <span class="chart-sub">Net savings per month</span>
+        </div>
+        <canvas #lineCanvas class="line-canvas"></canvas>
+      </div>
+
+      <!-- This month summary strip -->
+      <div class="month-strip">
+        <div class="ms-item">
+          <span class="ms-label">This Month Income</span>
+          <span class="ms-val green">€{{ monthlySummary.income.toFixed(2) }}</span>
+        </div>
+        <div class="ms-divider"></div>
+        <div class="ms-item">
+          <span class="ms-label">This Month Expenses</span>
+          <span class="ms-val red">€{{ monthlySummary.expense.toFixed(2) }}</span>
+        </div>
+        <div class="ms-divider"></div>
+        <div class="ms-item">
+          <span class="ms-label">This Month Balance</span>
+          <span class="ms-val" [class.green]="monthlySummary.balance >= 0" [class.red]="monthlySummary.balance < 0">
+            {{ monthlySummary.balance >= 0 ? '+' : '' }}€{{ monthlySummary.balance.toFixed(2) }}
+          </span>
+        </div>
+        <div class="ms-divider"></div>
+        <div class="ms-item">
+          <span class="ms-label">Trend</span>
+          <span class="ms-val">{{ trend || '—' }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════ ADD TRANSACTION TAB ══════════ -->
+    <div *ngIf="activeTab === 'add'" class="tab-content visible tab-padded">
+      <app-add-expense (expenseAdded)="onExpenseAdded()"></app-add-expense>
+    </div>
+
+    <!-- ══════════ TRANSACTIONS TAB ══════════ -->
+    <div *ngIf="activeTab === 'transactions'" class="tab-content visible tab-padded">
+      <app-expense-list></app-expense-list>
+    </div>
+
+    <!-- ══════════ BUDGETS TAB ══════════ -->
+    <div *ngIf="activeTab === 'budgets'" class="tab-content visible tab-padded">
+      <app-budget-overview></app-budget-overview>
+    </div>
+
+    <!-- ══════════ ANALYTICS TAB ══════════ -->
+    <div *ngIf="activeTab === 'analytics'" class="tab-content visible tab-padded">
+      <app-analytics></app-analytics>
+    </div>
+
+    <!-- ══════════ ALERTS TAB ══════════ -->
+    <div *ngIf="activeTab === 'alerts'" class="tab-content visible tab-padded">
+      <app-alert></app-alert>
+    </div>
+
+    <!-- ══════════ CATEGORIES TAB ══════════ -->
+    <div *ngIf="activeTab === 'categories'" class="tab-content visible tab-padded">
+      <app-category-manager></app-category-manager>
+    </div>
+
+  </main>
+</div>

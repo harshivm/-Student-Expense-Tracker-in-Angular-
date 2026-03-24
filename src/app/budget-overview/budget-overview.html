@@ -1,0 +1,53 @@
+<div class="bo-wrap">
+  <div class="bo-header">
+    <h2 class="bo-title">Budget Overview</h2>
+    <span class="bo-sub">{{ budgets.length }} categories tracked</span>
+  </div>
+
+  <div class="bo-empty" *ngIf="!budgets.length">
+    <div class="empty-icon">📊</div>
+    <p>No budgets set up yet</p>
+    <span>Add categories to start tracking budgets</span>
+  </div>
+
+  <div class="bo-grid" *ngIf="budgets.length">
+    <div class="bo-card" *ngFor="let budget of budgets">
+      <div class="bo-card-top">
+        <div class="bo-icon" [style.background]="getCategoryColor(budget.category) + '22'">
+          {{ getCategoryIcon(budget.category) }}
+        </div>
+        <div class="bo-info">
+          <div class="bo-cat">{{ budget.category }}</div>
+          <div class="bo-amounts">
+            <span class="bo-spent">€{{ budget.spent.toFixed(2) }}</span>
+            <span class="bo-sep">/</span>
+            <span class="bo-limit">€{{ budget.limit.toFixed(2) }}</span>
+          </div>
+        </div>
+        <div class="bo-status-badge"
+             [class.status-ok]="getProgressPercentage(budget) <= 80"
+             [class.status-warn]="getProgressPercentage(budget) > 80 && getProgressPercentage(budget) <= 100"
+             [class.status-over]="getProgressPercentage(budget) > 100">
+          {{ getProgressPercentage(budget) > 100 ? 'Over' : getProgressPercentage(budget) > 80 ? 'Near' : 'Good' }}
+        </div>
+      </div>
+
+      <div class="bo-track">
+        <div class="bo-fill"
+             [style.width.%]="getProgressPercentage(budget) > 100 ? 100 : getProgressPercentage(budget)"
+             [style.background]="getProgressColor(getProgressPercentage(budget))">
+        </div>
+      </div>
+
+      <div class="bo-footer">
+        <span class="bo-pct">{{ getProgressPercentage(budget).toFixed(1) }}% used</span>
+        <span class="bo-remaining"
+              [class.over-text]="budget.spent > budget.limit">
+          {{ budget.spent > budget.limit
+              ? '⚠ €' + (budget.spent - budget.limit).toFixed(2) + ' over'
+              : '€' + (budget.limit - budget.spent).toFixed(2) + ' remaining' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:host{font-family:'DM Sans',sans-serif;color:#f1f5f9;display:block}
+.cm-wrap{display:flex;flex-direction:column;gap:22px}
+.cm-header{display:flex;align-items:baseline;gap:12px}
+.cm-title{font-size:17px;font-weight:700}
+.cm-sub{font-size:12px;color:#64748b;margin-left:auto}
+.cm-section-title{font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:14px}
+.cm-add-card{background:#0f172a;border:1px solid rgba(148,163,184,0.10);border-radius:14px;padding:22px}
+.cm-add-form{display:flex;flex-direction:column;gap:16px}
+.cm-input{background:#1e293b;border:1px solid rgba(148,163,184,0.12);border-radius:9px;padding:10px 14px;color:#f1f5f9;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;width:100%;transition:border-color 0.18s,box-shadow 0.18s}
+.cm-input:focus{border-color:rgba(99,102,241,0.5);box-shadow:0 0 0 3px rgba(99,102,241,0.10)}
+.cm-input::placeholder{color:#475569}
+.pick-label{font-size:11px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:0.6px;display:block;margin-bottom:8px}
+.icon-grid{display:flex;flex-wrap:wrap;gap:6px}
+.icon-btn{background:#1e293b;border:1px solid rgba(148,163,184,0.10);border-radius:8px;width:36px;height:36px;font-size:16px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
+.icon-btn:hover{border-color:rgba(99,102,241,0.4);background:rgba(99,102,241,0.08)}
+.icon-btn.selected{border-color:rgba(99,102,241,0.6);background:rgba(99,102,241,0.15);box-shadow:0 0 0 2px rgba(99,102,241,0.2)}
+.color-grid{display:flex;flex-wrap:wrap;gap:7px}
+.color-btn{width:28px;height:28px;border-radius:7px;border:2px solid transparent;cursor:pointer;transition:all 0.15s}
+.color-btn:hover{transform:scale(1.12)}
+.color-btn.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,0.3);transform:scale(1.1)}
+.cm-add-btn{background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:9px;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:11px;cursor:pointer;transition:opacity 0.18s}
+.cm-add-btn:hover{opacity:0.88}
+.cm-add-btn:disabled{opacity:0.35;cursor:not-allowed}
+.cm-list{background:#0f172a;border:1px solid rgba(148,163,184,0.10);border-radius:14px;padding:22px}
+.cm-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(148,163,184,0.07)}
+.cm-item:last-child{border-bottom:none}
+.cm-item-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cm-item-body{flex:1;min-width:0}
+.cm-item-name{font-size:14px;font-weight:500;display:block}
+.cm-item-default{font-size:10px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;background:#1e293b;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:3px}
+.cm-item-budget{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.cm-budget-label{font-size:11px;color:#64748b}
+.cm-budget-input{background:#1e293b;border:1px solid rgba(148,163,184,0.12);border-radius:7px;padding:6px 10px;color:#f1f5f9;font-family:'DM Mono',monospace;font-size:13px;width:80px;outline:none;text-align:right}
+.cm-item-actions{display:flex;gap:6px;flex-shrink:0}
+.cm-btn-edit{background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);color:#818cf8;width:30px;height:30px;border-radius:7px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
+.cm-btn-edit:hover{background:rgba(99,102,241,0.25)}
+.cm-btn-delete{background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;width:30px;height:30px;border-radius:7px;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s}
+.cm-btn-delete:hover{background:rgba(255,107,107,0.22)}
+.cm-edit-form{display:flex;flex-direction:column;gap:12px;width:100%;padding:12px;background:#1e293b;border-radius:10px;border:1px solid rgba(99,102,241,0.2)}
+.cm-edit-actions{display:flex;gap:8px}
+.cm-save-btn{flex:1;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;border-radius:8px;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:9px;cursor:pointer}
+.cm-cancel-btn{flex:1;background:#273548;border:1px solid rgba(148,163,184,0.15);border-radius:8px;color:#94a3b8;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:9px;cursor:pointer}
